@@ -8,4 +8,4 @@
 #define _pawn_env_included
 
 native bool:Env_Has(const env[]);
-native bool:Env_Get(const env[], dest[], size=sizeof(dest));
+native Env_Get(const env[], dest[], size=sizeof(dest));

@@ -1,0 +1,82 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: 
+      - 'master'
+  pull_request: 
+    branches: 
+      - 'master'
+
+env:
+  OUTPUT_BIN: pawn_env
+  RELEASE_BIN: env
+  RELEASE_ADDS: env.inc
+  RUST: stable-i686
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: Install Rust (rustup)
+        run: rustup update ${{ env.RUST }} --no-self-update && rustup default ${{ env.RUST }}
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Create artifacts directory
+        run: |
+          mkdir artifacts/plugins
+          mkdir artifacts/pawno/include
+          mkdir artifacts/qawno/include
+
+      - name: Copy files to artifacts directory
+        run: |
+          cp .\target\release\${{ env.OUTPUT_BIN }}.dll .\artifacts\plugins\${{ env.RELEASE_BIN }}.dll
+          cp .\${{ env.RELEASE_ADDS }} .\artifacts\pawno\include\${{ env.RELEASE_ADDS }}
+          cp .\${{ env.RELEASE_ADDS }} .\artifacts\qawno\include\${{ env.RELEASE_ADDS }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'env-windows'
+          path: artifacts/
+
+  build-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install gcc-multilib
+        run: sudo apt update && sudo apt install gcc-multilib -y
+
+      - name: Install Rust (rustup)
+        run: rustup update ${{ env.RUST }} --no-self-update && rustup default ${{ env.RUST }}
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Create artifacts directory
+        run: |
+          mkdir -p artifacts/plugins
+          mkdir -p artifacts/pawno/include
+          mkdir -p artifacts/qawno/include
+
+      - name: Copy files to artifacts directory
+        run: |
+          cp target/release/lib${{ env.OUTPUT_BIN }}.so artifacts/plugins/${{ env.RELEASE_BIN }}.so
+          cp ${{ env.RELEASE_ADDS }} artifacts/pawno/include/${{ env.RELEASE_ADDS }}
+          cp ${{ env.RELEASE_ADDS }} artifacts/qawno/include/${{ env.RELEASE_ADDS }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'env-linux'
+          path: artifacts/
