@@ -19,7 +19,7 @@ impl super::PawnEnv {
 					warn!("empty env var: {}", env_var.to_string());
 					return Ok(-1);
 				}
-				return Ok(if err.is_ok() { val.len() as i32 } else { -1 });
+				return Ok(if err.is_ok() { val.len() as i32 } else { 0 });
 			}
 			Err(_) => {
 				warn!("env var not found: {}", env_var.to_string());
