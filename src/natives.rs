@@ -17,7 +17,7 @@ impl super::PawnEnv {
 				let err = samp::cell::string::put_in_buffer(&mut dest, &val);
 				if val.len() == 0 {
 					warn!("empty env var: {}", env_var.to_string());
-					return Ok(-1);
+					return Ok(-2);
 				}
 				return Ok(if err.is_ok() { val.len() as i32 } else { 0 });
 			}
